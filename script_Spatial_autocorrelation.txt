@@ -1,0 +1,71 @@
+## Paula Montagnana
+## Spatial autocorrelation
+#2021 08 d25
+
+# From Rocha-Filho, LC, Montagnana, PC, Araújo, T, Moure-Oliveira, D, Boscolo, D and
+# Garófalo, CA (2021), Pollen analysis of cavity-nesting bees (Hymenoptera: Anthophila) 
+# and their food webs in a city, Ecological Entomology, Doi: 10.1111/een.13097
+
+# Data
+polen<-read.table("dados.txt", head=T, sep="\t")
+
+##Testing the normality
+
+shapiro.test(polen$isa)
+
+##################
+
+## Packages
+install.packages("lctools")
+install.packages("ncf")
+install.packages("ape")
+
+library(lctools) # Moran's I
+library(ncf) # correlogram
+library(ape)
+
+polen.dists <- as.matrix(dist(cbind(polen$utm_x, polen$utm_y))) #first generate a distance matrix
+polen.dists.inv <- 1/polen.dists #then take inverse of the matrix values
+diag(polen.dists.inv) <- 0 #and replace the diagonal entries with zero
+
+Moran.I(polen$isa, polen.dists.inv)
+
+#we can reject the null hypothesis that there is zero spatial autocorrelation 
+#present in the variable resid at alpha = .05
+
+#--------------------------------------------------
+##Another way to calculate:
+
+### Linear Model to base the Moran's I computation
+
+resid <- lm(resid ~ green_connec + green_area + lri + mixed_area, data=polen)
+
+### Moran's I
+
+
+Moran.resid <- moransI(Coords=cbind(polen$utm_x, polen$utm_y), 
+                            Bandwidth=4, resid(resid), WType="Binary")
+
+Moran.resid$Morans.I
+Moran.resid$p.value.resampling # significance of the Moran's I
+Moran.resid$p.value.randomization # another variant of p-value
+
+
+## Graph: Correlogram
+
+Cor.resid <- correlog(x=polen$utm_x, y=polen$utm_y, 
+                              as.vector(resid(Moran.resid)), 
+                      increment=15, resamp=1000)
+## Figure
+
+x11(width=12, height=12) ####
+par(mfrow=c(1,2))
+plot(Cor.Mean_diameter$mean.of.class[1:6], Cor.Mean_diameter$correlation[1:6], 
+     xlab="mean of distance class (m)", ylab="correlation (Moran's  I)", las=1)
+abline(0, 0)
+points(Cor.Mean_diameter$x.intercept, 0, pch="|")
+legend("topright", "x intercept of autocorrelation", pch="|", bty="n", cex=0.6)
+plot(Cor.Mean_diameter$mean.of.class[1:6], Cor.Mean_diameter$p[1:6], ylim=c(0,1), 
+     xlab="mean of distance class (m)", ylab="p-value of Moran's  I", las=1)
+abline(0.05, 0)
+dev.off() # turn off the graphics device
