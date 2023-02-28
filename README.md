@@ -3,6 +3,7 @@
 
 Scripts in R language of the analyzes that compose the paper Rocha-Filho et al. (2021).
 - Exploratory data analysis
+- Spatial autocorrelation
 - Generalised Additive Models (GAM)
 - Response variables = pollen type richness
 - Predictive variables = Landscape metrics (Landscape Resistance index (LRI), % green areas, % mixed areas, green area connectivity)
