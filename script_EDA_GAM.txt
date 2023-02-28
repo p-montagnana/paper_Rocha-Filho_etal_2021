@@ -1,0 +1,450 @@
+### Paula Montagnana
+### 2021 06 d14
+## Exploratory data analysis
+### Generalised Additive Models (GAM)
+
+# From Rocha-Filho LC, Montagnana PC, Araújo T, Moure-Oliveira D,
+# Boscolo, D and Garófalo, CA (2021), Pollen analysis of cavity-nesting bees 
+# (Hymenoptera: Anthophila) and their food webs in a city,
+# Ecological Entomology, Doi: 10.1111/een.13097
+
+# Data
+polen<-read.table("dados.txt", head=T, sep="\t")
+
+# Packages
+install.packages("modelr", type = "source")
+install.packages("gratia", type = "source")
+require(modelr)
+require(ggplot2)
+require(cowplot)
+require(mgcv)
+require(gratia)
+
+##Exploratory data analysis
+
+##characters for numeric
+
+polen$riqueza<-as.numeric(as.character(polen$riqueza))
+polen$n_ninhos<-as.numeric(as.character(polen$n_ninhos))
+
+# Response variable = residuals of pollen type richness
+m<-glm(riqueza~n_ninhos, data= polen)
+residuals(m)
+
+polen2<-add_residuals(polen, m, var = "resid")
+
+polen2
+
+### Figures = residuals ~ predictor variables (landscape ecology metrics)
+
+pgc<-ggplot(polen2, aes(x = green_connec, y = resid)) +
+  geom_point()
+pgc
+
+pga<-ggplot(polen2, aes(x = green_area, y = resid)) +
+  geom_point()
+pga
+
+plri<-ggplot(polen2, aes(x = lri, y = resid)) +
+  geom_point()
+plri
+
+pma<-ggplot(polen2, aes(x = mixed_area, y = resid)) +
+  geom_point()
+pma
+
+tiff("riqueza.tif",res=96,units="mm",width=300,height=150)
+
+plot_grid(pgc, pga, plri, pma, ncol = 2, nrow = 2)
+
+dev.off()
+
+#### Figures = Ecological Network metrics ~ predictor variables 
+# (landscape Ecology metrics)
+
+# Nestedness (NODF)
+
+ngc<-ggplot(polen2, aes(x = green_connec, y = nodf)) +
+  geom_point()
+ngc
+
+nga<-ggplot(polen2, aes(x = green_area, y = nodf)) +
+  geom_point()
+nga
+
+nlri<-ggplot(polen2, aes(x = lri, y = nodf)) +
+  geom_point()
+nlri
+
+nma<-ggplot(polen2, aes(x = mixed_area, y = nodf)) +
+  geom_point()
+nma
+
+tiff("nodf.tif",res=96,units="mm",width=300,height=150)
+
+plot_grid(ngc, nga, nlri, nma, ncol = 2, nrow = 2)
+
+dev.off()
+
+### Network specialization (H2′ index)
+
+hgc<-ggplot(polen2, aes(x = green_connec, y = h2)) +
+  geom_point()
+hgc
+
+hga<-ggplot(polen2, aes(x = green_area, y = h2)) +
+  geom_point()
+hga
+
+hlri<-ggplot(polen2, aes(x = lri, y = h2)) +
+  geom_point()
+hlri
+
+hma<-ggplot(polen2, aes(x = mixed_area, y = h2)) +
+  geom_point()
+hma
+
+tiff("h2.tif",res=96,units="mm",width=300,height=150)
+
+plot_grid(hgc, hga, hlri, hma, ncol = 2, nrow = 2)
+
+dev.off()
+
+#### interaction evenness 
+
+igc<-ggplot(polen2, aes(x = green_connec, y = ie)) +
+  geom_point()
+igc
+
+iga<-ggplot(polen2, aes(x = green_area, y = ie)) +
+  geom_point()
+iga
+
+ilri<-ggplot(polen2, aes(x = lri, y = ie)) +
+  geom_point()
+ilri
+
+ima<-ggplot(polen2, aes(x = mixed_area, y = ie)) +
+  geom_point()
+ima
+
+tiff("ie.tif",res=96,units="mm",width=300,height=150)
+
+plot_grid(igc, iga, ilri, ima, ncol = 2, nrow = 2)
+
+dev.off()
+
+#### connectance (C)
+
+cgc<-ggplot(polen2, aes(x = green_connec, y = c)) +
+  geom_point()
+cgc
+
+cga<-ggplot(polen2, aes(x = green_area, y = c)) +
+  geom_point()
+cga
+
+clri<-ggplot(polen2, aes(x = lri, y = c)) +
+  geom_point()
+clri
+
+cma<-ggplot(polen2, aes(x = mixed_area, y = c)) +
+  geom_point()
+cma
+
+tiff("c.tif",res=96,units="mm",width=300,height=150)
+
+plot_grid(cgc, cga, clri, cma, ncol = 2, nrow = 2)
+
+dev.off()
+
+
+### robustness (R)
+
+rgc<-ggplot(polen2, aes(x = green_connec, y = r)) +
+  geom_point()
+rgc
+
+rga<-ggplot(polen2, aes(x = green_area, y = r)) +
+  geom_point()
+rga
+
+rlri<-ggplot(polen2, aes(x = lri, y = r)) +
+  geom_point()
+rlri
+
+rma<-ggplot(polen2, aes(x = mixed_area, y = r)) +
+  geom_point()
+rma
+
+tiff("r.tif",res=96,units="mm",width=300,height=150)
+
+plot_grid(rgc, rga, rlri, rma, ncol = 2, nrow = 2)
+
+dev.off()
+
+#### modularity QuanBioMo algorithm (Q)
+
+qgc<-ggplot(polen2, aes(x = green_connec, y = q)) +
+  geom_point()
+qgc
+
+qga<-ggplot(polen2, aes(x = green_area, y = q)) +
+  geom_point()
+qga
+
+qlri<-ggplot(polen2, aes(x = lri, y = q)) +
+  geom_point()
+qlri
+
+qma<-ggplot(polen2, aes(x = mixed_area, y = q)) +
+  geom_point()
+qma
+
+tiff("q.tif",res=96,units="mm",width=300,height=150)
+
+plot_grid(qgc, qga, qlri, qma, ncol = 2, nrow = 2)
+
+dev.off()
+
+#### metric ISA (indicates the different dependency of two interacting species
+
+isgc<-ggplot(polen2, aes(x = green_connec, y = isa)) +
+  geom_point()
+isgc
+
+isga<-ggplot(polen2, aes(x = green_area, y = isa)) +
+  geom_point()
+isga
+
+islri<-ggplot(polen2, aes(x = lri, y = isa)) +
+  geom_point()
+islri
+
+isma<-ggplot(polen2, aes(x = mixed_area, y = isa)) +
+  geom_point()
+isma
+
+tiff("isa.tif",res=96,units="mm",width=300,height=150)
+
+plot_grid(isgc, isga, islri, isma, ncol = 2, nrow = 2)
+
+dev.off()
+
+#---------------------------------------------------------------------
+
+### Generalised Additive Models (GAM)
+
+# Packages
+require(mgcv)
+require(lme4)
+require(bbmle)
+
+# Response variable = residuals of pollen type richness
+    
+p.nulo<-glm(resid~1, data=polen2)
+p.green.conect<-gam(resid~s(green_connec,fx=F,k=4),data=polen2, gamma=2.3)
+p.green.area<-gam(resid~s(green_area,fx=F,k=4),data=polen2, gamma=2.3)
+p.lri<-gam(resid~s(lri,fx=F,k=4),data=polen2, gamma=2.3)
+p.mixed.area<-gam(resid~s(mixed_area,fx=F,k=4),data=polen2, gamma=2.3)
+
+ICtab(p.nulo,p.green.conect,p.green.area,p.lri,p.mixed.area, 
+      weights=T, delta=T, base=T, type="AICc",nobs=nrow(polen2))
+
+### Graphic diagnosis
+
+gam.check(p.mixed.area)
+
+### Response variable = NODF
+
+n.nulo<-glm(nodf~1, data=polen2)
+n.green.conect<-gam(nodf~s(green_connec,fx=F,k=4),data=polen2, gamma=2.3)
+n.green.area<-gam(nodf~s(green_area,fx=F,k=4),data=polen2, gamma=2.3)
+n.lri<-gam(nodf~s(lri,fx=F,k=4),data=polen2, gamma=2.3)
+n.mixed.area<-gam(nodf~s(mixed_area,fx=F,k=4),data=polen2, gamma=2.3)
+
+ICtab(n.nulo,n.green.conect,n.green.area,n.lri,n.mixed.area, 
+      weights=T, delta=T, base=T, type="AICc",nobs=nrow(polen2))
+
+### Response variable = H2
+
+h.nulo<-glm(h2~1, data=polen2)
+h.green.conect<-gam(h2~s(green_connec,fx=F,k=4),data=polen2, gamma=2.3)
+h.green.area<-gam(h2~s(green_area,fx=F,k=4),data=polen2, gamma=2.3)
+h.lri<-gam(h2~s(lri,fx=F,k=4),data=polen2, gamma=2.3)
+h.mixed.area<-gam(h2~s(mixed_area,fx=F,k=4),data=polen2, gamma=2.3)
+
+ICtab(h.nulo,h.green.conect,h.green.area,h.lri,h.mixed.area, 
+      weights=T, delta=T, base=T, type="AICc",nobs=nrow(polen2))
+
+### Response variable = IE
+
+i.nulo<-glm(ie~1, data=polen2)
+i.green.conect<-gam(ie~s(green_connec,fx=F,k=4),data=polen2, gamma=2.3)
+i.green.area<-gam(ie~s(green_area,fx=F,k=4),data=polen2, gamma=2.3)
+i.lri<-gam(ie~s(lri,fx=F,k=4),data=polen2, gamma=2.3)
+i.mixed.area<-gam(ie~s(mixed_area,fx=F,k=4),data=polen2, gamma=2.3)
+
+ICtab(i.nulo,i.green.conect,i.green.area,i.lri,i.mixed.area, 
+      weights=T, delta=T, base=T, type="AICc",nobs=nrow(polen2))
+
+### Response variable = C
+
+c.nulo<-glm(c~1, data=polen2)
+c.green.conect<-gam(c~s(green_connec,fx=F,k=4),data=polen2, gamma=2.3)
+c.green.area<-gam(c~s(green_area,fx=F,k=4),data=polen2, gamma=2.3)
+c.lri<-gam(c~s(lri,fx=F,k=4),data=polen2, gamma=2.3)
+c.mixed.area<-gam(c~s(mixed_area,fx=F,k=4),data=polen2, gamma=2.3)
+
+ICtab(c.nulo,c.green.conect,c.green.area,c.lri,c.mixed.area, 
+      weights=T, delta=T, base=T, type="AICc",nobs=nrow(polen2))
+
+### Response variable = R
+
+r.nulo<-glm(r~1, data=polen2)
+r.green.conect<-gam(r~s(green_connec,fx=F,k=4),data=polen2, gamma=2.3)
+r.green.area<-gam(r~s(green_area,fx=F,k=4),data=polen2, gamma=2.3)
+r.lri<-gam(r~s(lri,fx=F,k=4),data=polen2, gamma=2.3)
+r.mixed.area<-gam(r~s(mixed_area,fx=F,k=4),data=polen2, gamma=2.3)
+
+ICtab(r.nulo,r.green.conect,r.green.area,r.lri,r.mixed.area, 
+      weights=T, delta=T, base=T, type="AICc",nobs=nrow(polen2))
+
+### Response variable = Q
+
+q.nulo<-glm(q~1, data=polen2)
+q.green.conect<-gam(q~s(green_connec,fx=F,k=4),data=polen2, gamma=2.3)
+q.green.area<-gam(q~s(green_area,fx=F,k=4),data=polen2, gamma=2.3)
+q.lri<-gam(q~s(lri,fx=F,k=4),data=polen2, gamma=2.3)
+q.mixed.area<-gam(q~s(mixed_area,fx=F,k=4),data=polen2, gamma=2.3)
+
+ICtab(q.nulo,q.green.conect,q.green.area,q.lri,q.mixed.area, 
+      weights=T, delta=T, base=T, type="AICc",nobs=nrow(polen2))
+
+### Response variable = ISA
+
+isa.nulo<-glm(isa~1, data=polen2)
+isa.green.conect<-gam(isa~s(green_connec,fx=F,k=4),data=polen2, gamma=2.3,family=gaussian)
+isa.green.area<-gam(isa~s(green_area,fx=F,k=4),data=polen2, gamma=2.3,family=gaussian)
+isa.lri<-gam(isa~s(lri,fx=F,k=4),data=polen2, gamma=2.3,family=gaussian)
+isa.mixed.area<-gam(isa~s(mixed_area,fx=F,k=4),data=polen2, gamma=2.3,family=gaussian)
+
+ICtab(isa.nulo,isa.green.conect,isa.green.area,isa.lri,isa.mixed.area, 
+      weights=T, delta=T, base=T, type="AICc",nobs=nrow(polen2))
+
+#-----------------------------------------------------------------------------------
+# Figures
+
+## Pollen richness ~ mixed areas
+
+riq.mixed<-qplot(mixed_area, resid, data=polen2,ylim = c(-9,8))+
+  geom_point(size=2, colour="coral1") +
+  stat_smooth(method="gam", se = T, colour="coral1")+
+  labs(y="Pollen type richness (residuals)",x="Mixed areas (%)")+
+  theme(plot.title = element_text(color="black", size=20,hjust=0.5),
+        panel.grid.major=element_blank(),panel.grid.minor=element_blank(),
+        panel.background=element_blank(),axis.line=element_line(colour="black"),
+        text=element_text(size=14,family="Arial"))
+riq.mixed
+
+tiff("riqueza_mixed_areas_300dpi.tif",res=300,units="mm",width=95,height=90)
+riq.mixed
+dev.off()
+
+### Pollen richness ~ LRI
+
+riq.lri<-qplot(lri, resid, data=polen2,ylim = c(-9,8))+
+  geom_point(size=2, colour="coral1") +
+  stat_smooth(method="gam", se = T, colour="coral1")+
+  labs(y="Pollen type richness (residuals)",x="Landscape Resistance Index")+
+  theme(plot.title = element_text(color="black", size=20,hjust=0.5),
+        panel.grid.major=element_blank(),panel.grid.minor=element_blank(),
+        panel.background=element_blank(),axis.line=element_line(colour="black"),
+        text=element_text(size=14,family="Arial"))
+riq.lri
+
+tiff("riqueza_lri_300dpi.tif",res=300,units="mm",width=95,height=90)
+riq.lri
+dev.off()
+
+## Pollen richness ~ green areas
+
+riq.ga<-qplot(green_area, resid, data=polen2,ylim = c(-9,8))+
+  geom_point(size=2, colour="coral1") +
+  stat_smooth(method="gam", se = T, colour="coral1")+
+  labs(y="Pollen type richness (residuals)",x="Green areas (%)")+
+  theme(plot.title = element_text(color="black", size=20,hjust=0.5),
+        panel.grid.major=element_blank(),panel.grid.minor=element_blank(),
+        panel.background=element_blank(),axis.line=element_line(colour="black"),
+        text=element_text(size=14,family="Arial"))
+riq.ga
+
+tiff("riqueza_green_area_300dpi.tif",res=300,units="mm",width=95,height=90)
+riq.ga
+dev.off()
+
+ma<-draw(p.mixed.area, residuals = T)+
+  labs(y="Pollen type richness (residuals)",x="Mixed areas (%)")+
+  theme(plot.title = element_text(color="black", size=20,hjust=0.5),
+        panel.grid.major=element_blank(),panel.grid.minor=element_blank(),
+        panel.background=element_blank(),axis.line=element_line(colour="black"),
+        text=element_text(size=12,family="Arial"))
+tiff("riqueza_polen_mixed_area_300dpi.tif",res=300,units="mm",width=100,height=90)
+ma
+dev.off()
+
+lri<-draw(p.lri, residuals = T)+
+  labs(y="Pollen type richness (residuals)",x=" Landscape resistance index")+
+  theme(plot.title = element_text(color="black", size=20,hjust=0.5),
+        panel.grid.major=element_blank(),panel.grid.minor=element_blank(),
+        panel.background=element_blank(),axis.line=element_line(colour="black"),
+        text=element_text(size=12,family="Arial"))
+tiff("riqueza_polen_lri_300dpi.tif",res=300,units="mm",width=100,height=90)
+lri
+dev.off()
+
+ga<-draw(p.green.area, residuals = T)+
+  labs(y="Pollen type richness (residuals)",x=" Green areas (%)")+
+  theme(plot.title = element_text(color="black", size=20,hjust=0.5),
+        panel.grid.major=element_blank(),panel.grid.minor=element_blank(),
+        panel.background=element_blank(),axis.line=element_line(colour="black"),
+        text=element_text(size=12,family="Arial"))
+tiff("riqueza_polen_green_area_300dpi.tif",res=300,units="mm",width=100,height=90)
+ga
+dev.off()
+
+## Connectance ~ green areas connectivity
+
+c.gc<-qplot(green_connec, c, data=polen2,ylim = c(0,1))+
+  geom_point(size=2, colour="coral1") +
+  stat_smooth(method="glm", se = T, colour="coral1")+
+  labs(y="Connectance",x="Green area connectivity")+
+  theme(plot.title = element_text(color="black", size=20,hjust=0.5),
+        panel.grid.major=element_blank(),panel.grid.minor=element_blank(),
+        panel.background=element_blank(),axis.line=element_line(colour="black"),
+        text=element_text(size=14,family="Arial"))
+c.gc
+
+tiff("conectancia_green_connect_300dpi.tif",res=300,units="mm",width=95,height=90)
+c.gc
+dev.off()
+
+c<-draw(c.green.conect, residuals = T)+
+  labs(y="Connectance",x=" Green areas connectivity (%)")+
+  theme(plot.title = element_text(color="black", size=20,hjust=0.5),
+        panel.grid.major=element_blank(),panel.grid.minor=element_blank(),
+        panel.background=element_blank(),axis.line=element_line(colour="black"),
+        text=element_text(size=12,family="Arial"))
+tiff("conectancia_green_connect_300dpi.tif",res=300,units="mm",width=100,height=90)
+c
+dev.off()
+
+r<-draw(r.green.conect, residuals = T)+
+  labs(y="Robustness",x=" Green areas connectivity (%)")+
+  theme(plot.title = element_text(color="black", size=20,hjust=0.5),
+        panel.grid.major=element_blank(),panel.grid.minor=element_blank(),
+        panel.background=element_blank(),axis.line=element_line(colour="black"),
+        text=element_text(size=12,family="Arial"))
+tiff("robustez_green_connect_300dpi.tif",res=300,units="mm",width=100,height=90)
+r
+dev.off()
